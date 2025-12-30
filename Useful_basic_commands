@@ -1,0 +1,146 @@
+Basic Setup
+-----------
+# Connect to device
+adb devices
+adb connect <device_ip>:<port>
+
+# Check device info
+adb shell getprop ro.product.model
+
+
+🔧 Device management
+-----------------
+# List connected devices
+adb devices -l
+
+# Connect over WiFi
+adb tcpip 5555
+adb connect <device_ip>
+
+# Reboot devices
+adb reboot
+adb reboot bootloader
+adb reboot recovery
+
+
+📱 App Management
+-----------------
+# Install/Uninstall apps
+adb install app.apk
+adb install -r app.apk  # Reinstall
+adb uninstall com.package.name
+
+# List packages
+adb shell pm list packages
+adb shell pm list packages -3  # Third-party apps
+
+
+📊 Log Collection & Analysis
+----------------------------
+# Basic logcat
+adb logcat
+adb logcat -d > logs.txt
+
+# Filter by tag/priority
+adb logcat -s TAG_NAME
+adb logcat *:E  # Errors only
+
+# Clear logs
+adb logcat -c
+
+# Logcat with timestamps
+adb logcat -v time
+
+
+🐛 Debugging & Testing
+----------------------
+# Take screenshot
+adb exec-out screencap -p > screenshot.png
+
+# Screen recording (Android 4.4+)
+adb shell screenrecord /sdcard/demo.mp4
+adb pull /sdcard/demo.mp4
+
+# Monitor CPU/Memory
+adb shell top
+adb shell dumpsys meminfo <package_name>
+
+
+⚡ Performance Testing
+----------------------
+# Battery info
+adb shell dumpsys battery
+
+# Network stats
+adb shell dumpsys netstats
+
+# GPU profiling
+adb shell dumpsys gfxinfo <package_name>
+
+
+🛠️ QA-Specific Scripts
+----------------------
+Check the scripts/ directory for ready-to-use scripts:
+
+log-capture.sh - Automated log collection
+
+screen-record.sh - Screen recording with timestamp
+
+install-multiple.sh - Batch APK installation
+
+bug-report.sh - Comprehensive bug report generation
+
+
+📖 Best Practices for QA
+------------------------
+1. Consistent Log Collection
+# Always include:
+adb logcat -d -v time > logs_$(date +%Y%m%d_%H%M%S).txt
+adb bugreport > bugreport_$(date +%Y%m%d).zip
+
+2. Device State Verification
+# Before testing
+adb shell getprop
+adb shell dumpsys battery
+adb shell wm size
+
+3. Automation Support
+# Grant permissions for automated testing
+adb shell pm grant <package> android.permission.<PERMISSION>
+
+
+🎯 Real-World QA Scenarios
+--------------------------
+Scenario 1: Crash Investigation
+# 1. Reproduce the crash
+# 2. Capture logs immediately
+adb logcat -d --pid=$(adb shell pidof -s com.package.name) > crash.log
+# 3. Get stack trace
+adb logcat -d | grep -A 20 -B 5 "FATAL"
+
+Scenario 2: Performance Testing
+# Monitor during test execution
+adb shell top -n 1 -d 1 > cpu_usage.txt &
+adb shell dumpsys gfxinfo com.package.name reset
+# Execute test...
+adb shell dumpsys gfxinfo com.package.name > gfxinfo.txt
+
+Scenario 3: Installation Testing
+# Test clean install
+adb uninstall com.package.name
+adb install app.apk
+
+# Test upgrade
+adb install -r upgrade.apk
+adb shell am start -n com.package.name/.MainActivity
+
+
+🔗 Useful Resources
+Official Android Developer ADB Guide
+https://developer.android.com/tools/adb
+
+ADB Shell Commands
+https://developer.android.com/studio/intro
+
+Logcat Command-Line Tool
+https://developer.android.com/tools/logcat
